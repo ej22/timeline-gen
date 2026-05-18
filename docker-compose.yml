@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  timeline-generator:
+    build: .
+    container_name: timeline-generator
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

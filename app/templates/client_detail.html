@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ client.name }} — Timeline Generator{% endblock %}
+
+{% block nav_extra %}
+<a class="nav-back" href="/">← All Clients</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ client.name }}</h1>
+    {% if client.goal %}<p class="client-goal">{{ client.goal }}</p>{% endif %}
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-sm btn-ghost" href="/clients/{{ client.id }}/edit">Edit Profile</a>
+    <a class="btn btn-sm btn-primary" href="/clients/{{ client.id }}/print" target="_blank">Print / PDF</a>
+    <form method="post" action="/clients/{{ client.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this client and all their entries?')">
+      <button class="btn btn-sm btn-danger" type="submit">Delete Client</button>
+    </form>
+  </div>
+</div>
+
+<div class="profile-bar">
+  {% if client.start_weight %}<span><strong>Start Weight:</strong> {{ client.start_weight }} kg</span>{% endif %}
+  {% if client.date_of_birth %}<span><strong>DOB:</strong> {{ client.date_of_birth }}</span>{% endif %}
+  {% if client.contact_email %}<span><strong>Email:</strong> {{ client.contact_email }}</span>{% endif %}
+  {% if client.contact_phone %}<span><strong>Phone:</strong> {{ client.contact_phone }}</span>{% endif %}
+</div>
+{% if client.notes %}
+<div class="profile-notes">{{ client.notes }}</div>
+{% endif %}
+
+<div class="timeline-header">
+  <h2>Timeline</h2>
+  <a class="btn btn-primary" href="/clients/{{ client.id }}/entries/new">+ Add Week</a>
+</div>
+
+{% if entries %}
+<div class="timeline">
+  {% for entry in entries %}
+  {% set colour = phase_colour(entry.phase or '') %}
+  <div class="entry-card" style="border-left-color: {{ colour }}">
+    <div class="entry-card-header" style="color: {{ colour }}">
+      <span class="entry-week">Week {{ entry.week_number }}</span>
+      {% if entry.date %}<span class="entry-date">{{ entry.date }}</span>{% endif %}
+      {% if entry.phase %}<span class="entry-phase-badge" style="background: {{ colour }}20; border: 1px solid {{ colour }}; color: {{ colour }}">{{ entry.phase }}</span>{% endif %}
+      <div class="entry-card-actions">
+        <a class="btn btn-xs btn-ghost" href="/clients/{{ client.id }}/entries/{{ entry.id }}/edit">Edit</a>
+        <form method="post" action="/clients/{{ client.id }}/entries/{{ entry.id }}/delete" style="display:inline" onsubmit="return confirm('Delete week {{ entry.week_number }}?')">
+          <button class="btn btn-xs btn-danger" type="submit">Delete</button>
+        </form>
+      </div>
+    </div>
+    <div class="entry-card-body">
+      {% if entry.calories or entry.cardio or entry.steps %}
+      <div class="entry-metrics">
+        {% if entry.calories %}<div class="metric"><span class="metric-label">Calories</span><span class="metric-value">{{ entry.calories }}</span></div>{% endif %}
+        {% if entry.cardio %}<div class="metric"><span class="metric-label">Cardio</span><span class="metric-value">{{ entry.cardio }}</span></div>{% endif %}
+        {% if entry.steps %}<div class="metric"><span class="metric-label">Steps</span><span class="metric-value">{{ "{:,}".format(entry.steps) }}</span></div>{% endif %}
+      </div>
+      {% endif %}
+      {% if entry.training_specifics %}
+      <div class="entry-field"><span class="field-label">Training:</span> {{ entry.training_specifics }}</div>
+      {% endif %}
+      {% if entry.goals_expectations %}
+      <div class="entry-field"><span class="field-label">Goals:</span> {{ entry.goals_expectations }}</div>
+      {% endif %}
+      {% if entry.notes %}
+      <div class="entry-field"><span class="field-label">Notes:</span> {{ entry.notes }}</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>No entries yet for this client.</p>
+  <a class="btn btn-primary" href="/clients/{{ client.id }}/entries/new">Add Week 1</a>
+</div>
+{% endif %}
+{% endblock %}

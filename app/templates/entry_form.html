@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{% if entry %}Edit Week {{ entry.week_number }}{% else %}New Entry{% endif %} — {{ client.name }}{% endblock %}
+
+{% block nav_extra %}
+<a class="nav-back" href="/clients/{{ client.id }}">← {{ client.name }}</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{% if entry %}Edit Week {{ entry.week_number }}{% else %}Add Week{% endif %}</h1>
+  <span class="page-sub">{{ client.name }}</span>
+</div>
+
+<form method="post" class="form-card" id="entry-form">
+  <div class="form-row">
+    <div class="form-group">
+      <label for="week_number">Week Number <span class="required">*</span></label>
+      <input id="week_number" name="week_number" type="number" min="1" required
+             value="{{ entry.week_number if entry else next_week }}">
+    </div>
+    <div class="form-group">
+      <label for="date">Week Start Date</label>
+      <input id="date" name="date" type="date" value="{{ entry.date if entry else '' }}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="phase">Phase</label>
+    {% set current_phase = entry.phase if entry else '' %}
+    {% set is_custom = current_phase and current_phase not in phases %}
+    <select id="phase" name="phase" onchange="handlePhaseChange(this)">
+      <option value="">— Select phase —</option>
+      {% for p in phases %}
+      <option value="{{ p }}" {% if current_phase == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+      <option value="__custom__" {% if is_custom %}selected{% endif %}>Other (custom…)</option>
+    </select>
+    <input id="phase_custom" name="phase_custom" type="text"
+           class="phase-custom-input {% if not is_custom %}hidden{% endif %}"
+           placeholder="Enter custom phase name"
+           value="{{ current_phase if is_custom else '' }}">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="calories">Calories</label>
+      <input id="calories" name="calories" type="number" min="0" value="{{ entry.calories if entry else '' }}">
+    </div>
+    <div class="form-group">
+      <label for="steps">Daily Steps</label>
+      <input id="steps" name="steps" type="number" min="0" value="{{ entry.steps if entry else '' }}">
+    </div>
+    <div class="form-group">
+      <label for="cardio">Cardio</label>
+      <input id="cardio" name="cardio" type="text" placeholder="e.g. 3x20m" value="{{ entry.cardio if entry else '' }}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="training_specifics">Training Specifics</label>
+    <textarea id="training_specifics" name="training_specifics" rows="3">{{ entry.training_specifics if entry else '' }}</textarea>
+  </div>
+  <div class="form-group">
+    <label for="goals_expectations">Goals / Expectations</label>
+    <textarea id="goals_expectations" name="goals_expectations" rows="3">{{ entry.goals_expectations if entry else '' }}</textarea>
+  </div>
+  <div class="form-group">
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes" rows="3">{{ entry.notes if entry else '' }}</textarea>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% if entry %}Save Changes{% else %}Add Entry{% endif %}</button>
+    <a class="btn btn-ghost" href="/clients/{{ client.id }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

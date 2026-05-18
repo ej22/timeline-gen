@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ client.name }} — Timeline</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 11px; color: #111; background: #fff; }
+    .print-header { padding: 16px 24px; border-bottom: 2px solid #111; margin-bottom: 16px; }
+    .print-header h1 { font-size: 22px; margin-bottom: 4px; }
+    .print-header .meta { display: flex; gap: 24px; flex-wrap: wrap; color: #444; font-size: 11px; }
+    .print-header .meta span strong { color: #111; }
+    .no-print { text-align: center; padding: 12px; background: #f5f5f5; border-bottom: 1px solid #ddd; }
+    .no-print button { padding: 8px 20px; background: #111; color: #fff; border: none; cursor: pointer; border-radius: 4px; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+    thead tr { background: #111; color: #fff; }
+    thead th { padding: 7px 8px; text-align: left; font-weight: 600; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid #e0e0e0; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    td { padding: 6px 8px; vertical-align: top; }
+    .phase-cell { font-weight: 600; white-space: nowrap; }
+    @media print {
+      .no-print { display: none; }
+      body { font-size: 10px; }
+      table { font-size: 9.5px; }
+      thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      td[style] { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <button onclick="window.print()">Print / Save as PDF</button>
+  </div>
+  <div class="print-header">
+    <h1>{{ client.name }}</h1>
+    <div class="meta">
+      {% if client.goal %}<span><strong>Goal:</strong> {{ client.goal }}</span>{% endif %}
+      {% if client.start_weight %}<span><strong>Start Weight:</strong> {{ client.start_weight }} kg</span>{% endif %}
+      {% if client.date_of_birth %}<span><strong>DOB:</strong> {{ client.date_of_birth }}</span>{% endif %}
+      {% if client.contact_email %}<span><strong>Email:</strong> {{ client.contact_email }}</span>{% endif %}
+    </div>
+    {% if client.notes %}<p style="margin-top:8px; color:#444;">{{ client.notes }}</p>{% endif %}
+  </div>
+
+  {% if entries %}
+  <table>
+    <thead>
+      <tr>
+        <th>Wk</th>
+        <th>Date</th>
+        <th>Phase</th>
+        <th>Calories</th>
+        <th>Cardio</th>
+        <th>Steps</th>
+        <th>Training</th>
+        <th>Goals / Expectations</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      {% set colour = phase_colour(e.phase or '') %}
+      <tr>
+        <td><strong>{{ e.week_number }}</strong></td>
+        <td>{{ e.date or '' }}</td>
+        <td class="phase-cell" style="color: {{ colour }}; border-left: 3px solid {{ colour }}">{{ e.phase or '' }}</td>
+        <td>{{ e.calories or '' }}</td>
+        <td>{{ e.cardio or '' }}</td>
+        <td>{% if e.steps %}{{ "{:,}".format(e.steps) }}{% endif %}</td>
+        <td>{{ e.training_specifics or '' }}</td>
+        <td>{{ e.goals_expectations or '' }}</td>
+        <td>{{ e.notes or '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="padding: 24px; color: #888;">No entries recorded.</p>
+  {% endif %}
+</body>
+</html>

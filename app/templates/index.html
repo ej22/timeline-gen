@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}All Clients — Timeline Generator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Clients</h1>
+  <a class="btn btn-primary" href="/clients/new">+ New Client</a>
+</div>
+
+{% if clients %}
+<div class="client-grid">
+  {% for c in clients %}
+  <a class="client-card" href="/clients/{{ c.id }}">
+    <div class="client-card-name">{{ c.name }}</div>
+    {% if c.goal %}<div class="client-card-meta">{{ c.goal }}</div>{% endif %}
+    {% if c.start_weight %}<div class="client-card-meta">{{ c.start_weight }} kg</div>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>No clients yet.</p>
+  <a class="btn btn-primary" href="/clients/new">Add your first client</a>
+</div>
+{% endif %}
+{% endblock %}
