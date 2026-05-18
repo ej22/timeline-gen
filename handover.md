@@ -51,6 +51,8 @@ A fitness coaching client timeline tracker. FastAPI + SQLite + Jinja2 templates 
 - Start/goal date fields on clients with auto-generated weekly entries
 
 - [x] **Copy week to multiple weeks** — "Copy to…" button on filled entry cards opens a copy form showing source week data and checkboxes for all other weeks. Submitting copies phase/calories/cardio/steps/training_specifics/goals_expectations/notes to selected targets while preserving each target's week_number and date. JS helpers: Select All Empty, Select All toggle, submit guard. New route: GET/POST `/clients/{client_id}/entries/{entry_id}/copy`. New template: `copy_entry.html`.
+- [x] **Copy week list styling** — checkbox list uses zebra striping (alternating `--surface` / `--surface2` rows) with `border-bottom` dividers for clear row separation. `overflow-y: auto` + `overflow-x: hidden` allows scrolling through long timelines (tested with 29 weeks). CSS link uses `?v=4` cache-bust parameter to ensure browsers pick up stylesheet changes.
+- [x] **Static file cache busting** — `base.html` CSS link includes `?v=N` version param; increment when making CSS changes to force browser cache refresh.
 
 ## Next Steps
 - None — all features implemented and tested
