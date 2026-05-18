@@ -20,6 +20,13 @@ A fitness coaching client timeline tracker. FastAPI + SQLite + Jinja2 templates 
 - [x] Built and started container successfully
 - [x] All routes tested (200/303 responses confirmed)
 - [x] SQLite DB persists at ./data/timeline.db on host
+- [x] **start_date / goal_date** added to clients table (with safe ALTER TABLE migration for existing DBs)
+- [x] Client form updated with start/goal date fields (required on create, optional on edit)
+- [x] Auto-generate weekly entries on client creation based on date range
+- [x] Edit client: extend date range → appends new weeks; shorten → warning banner, no deletion
+- [x] Client detail: profile bar shows dates; timeline-progress counter; empty weeks show as muted dashed cards with "Plan" button
+- [x] Print view: dates shown in header; `/print?hide_empty=true` filters unplanned weeks
+- [x] JS: week count hint + goal-date-after-start validation on client form
 
 ## What Went Right
 - Docker build clean first try
@@ -37,10 +44,11 @@ A fitness coaching client timeline tracker. FastAPI + SQLite + Jinja2 templates 
 - Container running at http://localhost:8888
 - Full CRUD for clients and entries working
 - Timeline view with phase colour coding working
-- Print/PDF view working
+- Print/PDF view working (with optional hide_empty filter)
 - Dark theme applied
 - Custom phase dropdown working (JS)
 - DB persists on host at ./data/timeline.db
+- Start/goal date fields on clients with auto-generated weekly entries
 
 ## Next Steps
 - None — all features implemented and tested

@@ -114,7 +114,7 @@ async def delete_entry(client_id: int, entry_id: int):
 
 
 @router.get("/clients/{client_id}/print", response_class=HTMLResponse)
-async def print_view(request: Request, client_id: int):
+async def print_view(request: Request, client_id: int, hide_empty: Optional[str] = None):
     conn = get_connection()
     client = conn.execute("SELECT * FROM clients WHERE id = ?", (client_id,)).fetchone()
     entries = conn.execute(
@@ -123,8 +123,12 @@ async def print_view(request: Request, client_id: int):
     conn.close()
     if not client:
         return HTMLResponse("Client not found", status_code=404)
+
+    if hide_empty == "true":
+        entries = [e for e in entries if e["phase"] or e["calories"] or e["cardio"] or e["steps"] or e["training_specifics"] or e["goals_expectations"] or e["notes"]]
+
     return templates.TemplateResponse(
         request=request,
         name="print_view.html",
-        context={"client": client, "entries": entries, "phase_colour": _colour},
+        context={"client": client, "entries": entries, "phase_colour": _colour, "hide_empty": hide_empty},
     )

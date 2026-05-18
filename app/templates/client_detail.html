@@ -6,6 +6,11 @@
 {% endblock %}
 
 {% block content %}
+{% if warning == 'date_shortened' %}
+<div class="alert alert-warning">
+  The new date range covers fewer weeks than currently exist. You may want to manually remove extra weeks to keep the timeline tidy.
+</div>
+{% endif %}
 <div class="page-header">
   <div>
     <h1>{{ client.name }}</h1>
@@ -13,7 +18,8 @@
   </div>
   <div class="page-actions">
     <a class="btn btn-sm btn-ghost" href="/clients/{{ client.id }}/edit">Edit Profile</a>
-    <a class="btn btn-sm btn-primary" href="/clients/{{ client.id }}/print" target="_blank">Print / PDF</a>
+    <a class="btn btn-sm btn-primary" href="/clients/{{ client.id }}/print" target="_blank">Print All</a>
+    <a class="btn btn-sm btn-ghost" href="/clients/{{ client.id }}/print?hide_empty=true" target="_blank">Print Planned Only</a>
     <form method="post" action="/clients/{{ client.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this client and all their entries?')">
       <button class="btn btn-sm btn-danger" type="submit">Delete Client</button>
     </form>
@@ -21,6 +27,8 @@
 </div>
 
 <div class="profile-bar">
+  {% if client.start_date %}<span><strong>Start:</strong> {{ client.start_date }}</span>{% endif %}
+  {% if client.goal_date %}<span><strong>Goal:</strong> {{ client.goal_date }}</span>{% endif %}
   {% if client.start_weight %}<span><strong>Start Weight:</strong> {{ client.start_weight }} kg</span>{% endif %}
   {% if client.date_of_birth %}<span><strong>DOB:</strong> {{ client.date_of_birth }}</span>{% endif %}
   {% if client.contact_email %}<span><strong>Email:</strong> {{ client.contact_email }}</span>{% endif %}
@@ -31,7 +39,17 @@
 {% endif %}
 
 <div class="timeline-header">
-  <h2>Timeline</h2>
+  <h2>Timeline
+    {% if entries %}
+      {% set filled = [] %}
+      {% for e in entries %}
+        {% if e.phase or e.calories or e.cardio or e.steps or e.training_specifics or e.goals_expectations or e.notes %}
+          {% if filled.append(1) %}{% endif %}
+        {% endif %}
+      {% endfor %}
+      <span class="timeline-progress">{{ filled|length }} of {{ entries|length }} weeks planned</span>
+    {% endif %}
+  </h2>
   <a class="btn btn-primary" href="/clients/{{ client.id }}/entries/new">+ Add Week</a>
 </div>
 
@@ -39,18 +57,24 @@
 <div class="timeline">
   {% for entry in entries %}
   {% set colour = phase_colour(entry.phase or '') %}
-  <div class="entry-card" style="border-left-color: {{ colour }}">
+  {% set is_empty = not entry.phase and not entry.calories and not entry.cardio and not entry.steps and not entry.training_specifics and not entry.goals_expectations and not entry.notes %}
+  <div class="entry-card {% if is_empty %}entry-empty{% endif %}" style="border-left-color: {{ colour }}">
     <div class="entry-card-header" style="color: {{ colour }}">
       <span class="entry-week">Week {{ entry.week_number }}</span>
       {% if entry.date %}<span class="entry-date">{{ entry.date }}</span>{% endif %}
       {% if entry.phase %}<span class="entry-phase-badge" style="background: {{ colour }}20; border: 1px solid {{ colour }}; color: {{ colour }}">{{ entry.phase }}</span>{% endif %}
       <div class="entry-card-actions">
-        <a class="btn btn-xs btn-ghost" href="/clients/{{ client.id }}/entries/{{ entry.id }}/edit">Edit</a>
+        <a class="btn btn-xs btn-ghost" href="/clients/{{ client.id }}/entries/{{ entry.id }}/edit">{% if is_empty %}Plan{% else %}Edit{% endif %}</a>
         <form method="post" action="/clients/{{ client.id }}/entries/{{ entry.id }}/delete" style="display:inline" onsubmit="return confirm('Delete week {{ entry.week_number }}?')">
           <button class="btn btn-xs btn-danger" type="submit">Delete</button>
         </form>
       </div>
     </div>
+    {% if is_empty %}
+    <div class="entry-card-body">
+      <span class="entry-empty-label">Not yet planned — click Plan to fill in details</span>
+    </div>
+    {% else %}
     <div class="entry-card-body">
       {% if entry.calories or entry.cardio or entry.steps %}
       <div class="entry-metrics">
@@ -69,6 +93,7 @@
       <div class="entry-field"><span class="field-label">Notes:</span> {{ entry.notes }}</div>
       {% endif %}
     </div>
+    {% endif %}
   </div>
   {% endfor %}
 </div>

@@ -20,6 +20,8 @@ def init_db():
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 name        TEXT    NOT NULL,
                 goal        TEXT,
+                start_date  TEXT,
+                goal_date   TEXT,
                 start_weight REAL,
                 date_of_birth TEXT,
                 contact_email TEXT,
@@ -43,4 +45,10 @@ def init_db():
                 created_at          TEXT    NOT NULL DEFAULT (datetime('now'))
             );
         """)
+        # Migration: add start_date and goal_date columns
+        cols = [row[1] for row in conn.execute("PRAGMA table_info(clients)").fetchall()]
+        if "start_date" not in cols:
+            conn.execute("ALTER TABLE clients ADD COLUMN start_date TEXT")
+        if "goal_date" not in cols:
+            conn.execute("ALTER TABLE clients ADD COLUMN goal_date TEXT")
     conn.close()

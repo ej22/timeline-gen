@@ -35,6 +35,8 @@
   <div class="print-header">
     <h1>{{ client.name }}</h1>
     <div class="meta">
+      {% if client.start_date %}<span><strong>Start:</strong> {{ client.start_date }}</span>{% endif %}
+      {% if client.goal_date %}<span><strong>Goal Date:</strong> {{ client.goal_date }}</span>{% endif %}
       {% if client.goal %}<span><strong>Goal:</strong> {{ client.goal }}</span>{% endif %}
       {% if client.start_weight %}<span><strong>Start Weight:</strong> {{ client.start_weight }} kg</span>{% endif %}
       {% if client.date_of_birth %}<span><strong>DOB:</strong> {{ client.date_of_birth }}</span>{% endif %}
