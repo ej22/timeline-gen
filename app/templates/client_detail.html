@@ -65,6 +65,9 @@
       {% if entry.phase %}<span class="entry-phase-badge" style="background: {{ colour }}20; border: 1px solid {{ colour }}; color: {{ colour }}">{{ entry.phase }}</span>{% endif %}
       <div class="entry-card-actions">
         <a class="btn btn-xs btn-ghost" href="/clients/{{ client.id }}/entries/{{ entry.id }}/edit">{% if is_empty %}Plan{% else %}Edit{% endif %}</a>
+        {% if not is_empty %}
+        <a class="btn btn-xs btn-ghost" href="/clients/{{ client.id }}/entries/{{ entry.id }}/copy">Copy to…</a>
+        {% endif %}
         <form method="post" action="/clients/{{ client.id }}/entries/{{ entry.id }}/delete" style="display:inline" onsubmit="return confirm('Delete week {{ entry.week_number }}?')">
           <button class="btn btn-xs btn-danger" type="submit">Delete</button>
         </form>

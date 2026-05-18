@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from typing import Optional
+from typing import List, Optional
 from app.database import get_connection
 from app.models import PHASES, PHASE_COLOURS
 
@@ -109,6 +109,50 @@ async def delete_entry(client_id: int, entry_id: int):
     conn = get_connection()
     with conn:
         conn.execute("DELETE FROM entries WHERE id = ? AND client_id = ?", (entry_id, client_id))
+    conn.close()
+    return RedirectResponse(f"/clients/{client_id}", status_code=303)
+
+
+@router.get("/clients/{client_id}/entries/{entry_id}/copy", response_class=HTMLResponse)
+async def copy_entry_form(request: Request, client_id: int, entry_id: int):
+    conn = get_connection()
+    client = conn.execute("SELECT * FROM clients WHERE id = ?", (client_id,)).fetchone()
+    source = conn.execute("SELECT * FROM entries WHERE id = ? AND client_id = ?", (entry_id, client_id)).fetchone()
+    all_entries = conn.execute(
+        "SELECT * FROM entries WHERE client_id = ? ORDER BY week_number", (client_id,)
+    ).fetchall()
+    conn.close()
+    if not client or not source:
+        return HTMLResponse("Not found", status_code=404)
+    return templates.TemplateResponse(
+        request=request,
+        name="copy_entry.html",
+        context={"client": client, "source": source, "entries": all_entries, "phase_colour": _colour},
+    )
+
+
+@router.post("/clients/{client_id}/entries/{entry_id}/copy")
+async def copy_entry(
+    request: Request,
+    client_id: int,
+    entry_id: int,
+    target_ids: List[int] = Form(...),
+):
+    conn = get_connection()
+    source = conn.execute("SELECT * FROM entries WHERE id = ? AND client_id = ?", (entry_id, client_id)).fetchone()
+    if not source:
+        conn.close()
+        return HTMLResponse("Source entry not found", status_code=404)
+    with conn:
+        for tid in target_ids:
+            conn.execute(
+                "UPDATE entries SET phase=?, calories=?, cardio=?, steps=?, "
+                "training_specifics=?, goals_expectations=?, notes=? "
+                "WHERE id=? AND client_id=?",
+                (source["phase"], source["calories"], source["cardio"], source["steps"],
+                 source["training_specifics"], source["goals_expectations"], source["notes"],
+                 tid, client_id),
+            )
     conn.close()
     return RedirectResponse(f"/clients/{client_id}", status_code=303)
 

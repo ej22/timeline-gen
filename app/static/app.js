@@ -60,3 +60,33 @@ function handlePhaseChange(select) {
 
   calcWeeks();
 })();
+
+// --- Copy week selection helpers ---
+function selectAllEmpty() {
+  var checks = document.querySelectorAll('#copy-form input[name="target_ids"]');
+  checks.forEach(function(cb) {
+    cb.checked = cb.dataset.empty === 'true';
+  });
+}
+
+function toggleAll() {
+  var checks = document.querySelectorAll('#copy-form input[name="target_ids"]');
+  var allChecked = Array.from(checks).every(function(cb) { return cb.checked; });
+  checks.forEach(function(cb) {
+    cb.checked = !allChecked;
+  });
+}
+
+// --- Copy form validation ---
+(function() {
+  var copyForm = document.getElementById('copy-form');
+  if (!copyForm) return;
+  copyForm.addEventListener('submit', function(e) {
+    var checks = copyForm.querySelectorAll('input[name="target_ids"]:checked');
+    if (checks.length === 0) {
+      e.preventDefault();
+      var err = document.getElementById('copy-error');
+      if (err) err.style.display = 'block';
+    }
+  });
+})();

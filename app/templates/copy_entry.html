@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Copy Week {{ source.week_number }} — {{ client.name }}{% endblock %}
+
+{% block nav_extra %}
+<a class="nav-back" href="/clients/{{ client.id }}">← {{ client.name }}</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Copy Week {{ source.week_number }}</h1>
+  <span class="page-sub">{{ client.name }}</span>
+</div>
+
+<div class="copy-source-card">
+  <h3>Copying from Week {{ source.week_number }}{% if source.date %} · {{ source.date }}{% endif %}</h3>
+  <div class="copy-source-details">
+    {% if source.phase %}<span><strong>Phase:</strong> {{ source.phase }}</span>{% endif %}
+    {% if source.calories %}<span><strong>Calories:</strong> {{ source.calories }}</span>{% endif %}
+    {% if source.cardio %}<span><strong>Cardio:</strong> {{ source.cardio }}</span>{% endif %}
+    {% if source.steps %}<span><strong>Steps:</strong> {{ "{:,}".format(source.steps) }}</span>{% endif %}
+    {% if source.training_specifics %}<span><strong>Training:</strong> {{ source.training_specifics }}</span>{% endif %}
+    {% if source.goals_expectations %}<span><strong>Goals:</strong> {{ source.goals_expectations }}</span>{% endif %}
+    {% if source.notes %}<span><strong>Notes:</strong> {{ source.notes }}</span>{% endif %}
+  </div>
+</div>
+
+<form method="post" id="copy-form">
+  <div class="copy-targets">
+    <div class="copy-targets-header">
+      <h3>Copy to:</h3>
+      <div class="copy-select-buttons">
+        <button type="button" class="btn btn-xs btn-ghost" onclick="selectAllEmpty()">Select All Empty</button>
+        <button type="button" class="btn btn-xs btn-ghost" onclick="toggleAll()">Select All</button>
+      </div>
+    </div>
+    <p id="copy-error" class="form-error" style="display:none;">Select at least one week to copy to.</p>
+
+    <div class="copy-week-list">
+      {% for entry in entries %}
+      {% if entry.id != source.id %}
+      {% set has_data = entry.phase or entry.calories or entry.cardio or entry.steps or entry.training_specifics or entry.goals_expectations or entry.notes %}
+      <label class="copy-week-item {% if has_data %}has-data{% endif %}">
+        <input type="checkbox" name="target_ids" value="{{ entry.id }}" data-empty="{{ 'false' if has_data else 'true' }}">
+        <span class="copy-week-info">
+          <strong>Week {{ entry.week_number }}</strong>
+          {% if entry.date %}<span class="copy-week-date">{{ entry.date }}</span>{% endif %}
+        </span>
+        {% if has_data %}
+        <span class="copy-week-warning">⚠ Has data — will be overwritten</span>
+        {% else %}
+        <span class="copy-week-empty-tag">Empty</span>
+        {% endif %}
+      </label>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Copy to Selected Weeks</button>
+    <a class="btn btn-ghost" href="/clients/{{ client.id }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

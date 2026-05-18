@@ -50,6 +50,8 @@ A fitness coaching client timeline tracker. FastAPI + SQLite + Jinja2 templates 
 - DB persists on host at ./data/timeline.db
 - Start/goal date fields on clients with auto-generated weekly entries
 
+- [x] **Copy week to multiple weeks** — "Copy to…" button on filled entry cards opens a copy form showing source week data and checkboxes for all other weeks. Submitting copies phase/calories/cardio/steps/training_specifics/goals_expectations/notes to selected targets while preserving each target's week_number and date. JS helpers: Select All Empty, Select All toggle, submit guard. New route: GET/POST `/clients/{client_id}/entries/{entry_id}/copy`. New template: `copy_entry.html`.
+
 ## Next Steps
 - None — all features implemented and tested
 - Run `docker compose up --build` to start fresh on any machine
